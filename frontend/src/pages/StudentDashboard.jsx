@@ -1,0 +1,139 @@
+import { useEffect, useState } from 'react';
+import API from '../api/axios';
+
+const StudentDashboard = () => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await API.get('/student/dashboard');
+        setData(res.data);
+      } catch (err) {
+        setError(err.response?.data?.message || 'डैशबोर्ड लोड करने में समस्या आई।');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/login';
+  };
+
+  if (loading) return <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>लोड हो रहा है...</div>;
+  if (error) return <div style={{ padding: '40px', color: 'red', fontFamily: 'sans-serif' }}>{error}</div>;
+
+  const { profile, attendance, fees, notices } = data;
+
+  return (
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px', fontFamily: 'sans-serif' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #e5e7eb', paddingBottom: '16px', marginBottom: '24px' }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Student Dashboard</h1>
+          <p style={{ margin: '4px 0 0', color: '#4b5563' }}>
+            {profile?.name} | Class: <strong>{profile?.class_name ? `${profile.class_name} - ${profile.section}` : 'Not Assigned'}</strong>
+          </p>
+        </div>
+        <button onClick={handleLogout} style={{ padding: '8px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+          Logout
+        </button>
+      </div>
+
+      {/* Summary Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+        <div style={{ padding: '16px', border: '1px solid #d1d5db', borderRadius: '8px', background: '#f0fdf4' }}>
+          <h3 style={{ margin: '0 0 8px', color: '#166534' }}>Attendance</h3>
+          <p style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>{attendance.percentage}%</p>
+          <small>{attendance.presentDays} / {attendance.totalDays} दिन उपस्थित</small>
+        </div>
+
+        <div style={{ padding: '16px', border: '1px solid #d1d5db', borderRadius: '8px', background: '#fefce8' }}>
+          <h3 style={{ margin: '0 0 8px', color: '#854d0e' }}>Pending Fees</h3>
+          <p style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>
+            ₹{fees.filter(f => f.status === 'Pending').reduce((sum, f) => sum + Number(f.amount), 0)}
+          </p>
+          <small>{fees.filter(f => f.status === 'Pending').length} बकाया किस्त</small>
+        </div>
+
+        <div style={{ padding: '16px', border: '1px solid #d1d5db', borderRadius: '8px', background: '#eff6ff' }}>
+          <h3 style={{ margin: '0 0 8px', color: '#1e40af' }}>Active Notices</h3>
+          <p style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>{notices.length}</p>
+          <small>स्कूल की ताज़ा सूचनाएं</small>
+        </div>
+      </div>
+
+      {/* Attendance & Fees Tables */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '28px' }}>
+        <div>
+          <h3>Recent Attendance</h3>
+          {attendance.recentRecords.length === 0 ? <p>कोई रिकॉर्ड नहीं</p> : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6', textAlign: 'left' }}>
+                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Date</th>
+                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendance.recentRecords.map((rec, idx) => (
+                  <tr key={idx}>
+                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{rec.date.split('T')[0]}</td>
+                    <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold', color: rec.status === 'Present' ? 'green' : 'red' }}>
+                      {rec.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div>
+          <h3>Fee Details</h3>
+          {fees.length === 0 ? <p>कोई फीस रिकॉर्ड नहीं</p> : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6', textAlign: 'left' }}>
+                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Amount</th>
+                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Due Date</th>
+                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fees.map((fee) => (
+                  <tr key={fee.id}>
+                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>₹{fee.amount}</td>
+                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{fee.due_date.split('T')[0]}</td>
+                    <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold', color: fee.status === 'Paid' ? 'green' : '#d97706' }}>
+                      {fee.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Notices */}
+      <div>
+        <h3>School Notices</h3>
+        {notices.length === 0 ? <p>कोई नया नोटिस नहीं है।</p> : notices.map((n) => (
+          <div key={n.id} style={{ padding: '12px 16px', border: '1px solid #e5e7eb', borderLeft: '4px solid #2563eb', borderRadius: '6px', marginBottom: '12px' }}>
+            <h4 style={{ margin: '0 0 4px' }}>{n.title}</h4>
+            <p style={{ margin: '0 0 6px', color: '#374151' }}>{n.description}</p>
+            <small style={{ color: '#6b7280' }}>{new Date(n.created_at).toLocaleDateString()}</small>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default StudentDashboard;

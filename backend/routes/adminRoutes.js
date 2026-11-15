@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const bcrypt = require('bcryptjs');
 const { pool: db } = require('../config/db');
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
@@ -29,7 +29,7 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// 2. POST: /api/admin/users (Student या Teacher जोड़ें)
+// 2. POST: /api/admin/users
 router.post('/users', async (req, res) => {
   let { name, email, password, role, class_id, phone } = req.body;
 
@@ -55,7 +55,7 @@ router.post('/users', async (req, res) => {
       [name, email, hashedPassword, role, role === 'student' ? (class_id || null) : null, phone || null]
     );
 
-    res.status(201).json({ message: `${role} सफलतापूर्वक जोड़ा गया।`, userId: result.insertId });
+    res.status(201).json({ message: ${role} सफलतापूर्वक जोड़ा गया।, userId: result.insertId });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ message: 'यह ईमेल पहले से रजिस्टर्ड है।' });
@@ -78,8 +78,8 @@ router.get('/users', async (req, res) => {
 
   try {
     const query = role
-      ? 'SELECT id, name, email, role, class_id, phone, created_at FROM users WHERE role = ? ORDER BY created_at DESC'
-      : 'SELECT id, name, email, role, class_id, phone, created_at FROM users ORDER BY created_at DESC';
+      ? 'SELECT id, name, email, role, class_id, phone, created_at FROM users WHERE role = ? ORDER BY id DESC'
+      : 'SELECT id, name, email, role, class_id, phone, created_at FROM users ORDER BY id DESC';
     const [users] = await db.query(query, role ? [role] : []);
     res.json(users);
   } catch (error) {
@@ -118,7 +118,23 @@ router.post('/classes', async (req, res) => {
   }
 });
 
-// 5. POST: /api/admin/notices (सही कॉलम नाम: description, posted_by)
+// 5. GET: /api/admin/classes
+router.get('/classes', async (req, res) => {
+  try {
+    const [classes] = await db.query(
+      SELECT c.id, c.class_name, c.section, c.teacher_id, u.name AS teacher_name
+      FROM classes c
+      LEFT JOIN users u ON c.teacher_id = u.id
+      ORDER BY c.class_name, c.section
+    );
+    res.json(classes);
+  } catch (error) {
+    console.error('Fetch Classes Error:', error);
+    res.status(500).json({ message: 'क्लासेस लाने में त्रुटि हुई।' });
+  }
+});
+
+// 6. POST: /api/admin/notices
 router.post('/notices', async (req, res) => {
   const { title, description, target_role } = req.body;
 
@@ -141,7 +157,7 @@ router.post('/notices', async (req, res) => {
   }
 });
 
-// 6. POST: /api/admin/fees (छात्र के लिए नई फीस जोड़ें)
+// 7. POST: /api/admin/fees
 router.post('/fees', async (req, res) => {
   const { student_id, amount, due_date } = req.body;
 
@@ -166,13 +182,29 @@ router.post('/fees', async (req, res) => {
   }
 });
 
-// 7. PUT: /api/admin/fees/:id/pay (फीस जमा मार्क करें)
+// 8. GET: /api/admin/fees
+router.get('/fees', async (req, res) => {
+  try {
+    const [fees] = await db.query(
+      SELECT f.*, u.name AS student_name, u.email AS student_email
+      FROM fees f
+      JOIN users u ON f.student_id = u.id
+      ORDER BY f.id DESC
+    );
+    res.json(fees);
+  } catch (error) {
+    console.error('Fetch Fees Error:', error);
+    res.status(500).json({ message: 'फीस रिकॉर्ड्स लाने में त्रुटि हुई।' });
+  }
+});
+
+// 9. PUT: /api/admin/fees/:id/pay
 router.put('/fees/:id/pay', async (req, res) => {
-  const { payment_id } = req.body;
+  const { payment_id } = req.body || {};
   try {
     const [result] = await db.query(
       "UPDATE fees SET status = 'Paid', payment_id = ?, paid_on = CURDATE() WHERE id = ?",
-      [payment_id || `CASH-${Date.now()}`, req.params.id]
+      [payment_id || CASH-, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'फीस रिकॉर्ड नहीं मिला।' });
