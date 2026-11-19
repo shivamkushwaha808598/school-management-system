@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import API from '../api/axios';
 
 const StudentDashboard = () => {
@@ -23,6 +23,56 @@ const StudentDashboard = () => {
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = '/login';
+  };
+
+  const handlePrintReceipt = (fee) => {
+    const receiptWin = window.open('', '_blank', 'width=720,height=600');
+    const paidDate = fee.paid_on ? fee.paid_on.split('T')[0] : new Date().toISOString().split('T')[0];
+    const receiptNo = fee.payment_id || `REC-${fee.id}`;
+    const classLabel = profile?.class_name ? `${profile.class_name} - ${profile.section}` : 'Not Assigned';
+
+    receiptWin.document.write(`
+      <html>
+        <head>
+          <title>Fee Receipt - ${receiptNo}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 32px; color: #111827; }
+            .box { border: 2px solid #1e3a8a; border-radius: 8px; padding: 24px; max-width: 620px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 20px; }
+            .header h1 { margin: 0; color: #1e3a8a; font-size: 24px; }
+            .header p { margin: 4px 0 0; color: #4b5563; font-size: 13px; }
+            .badge { display: inline-block; background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-top: 8px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+            td, th { border: 1px solid #d1d5db; padding: 10px; text-align: left; }
+            th { background: #f3f4f6; }
+            .footer { margin-top: 32px; display: flex; justify-content: space-between; font-size: 13px; color: #4b5563; }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <div class="header">
+              <h1>Sunrise Public School</h1>
+              <p>Bhopal, Madhya Pradesh | Official Fee Payment Receipt</p>
+              <div class="badge">PAID RECEIPT</div>
+            </div>
+            <table>
+              <tr><th>Receipt / Payment ID</th><td><strong>${receiptNo}</strong></td></tr>
+              <tr><th>Student Name</th><td>${profile?.name || ''}</td></tr>
+              <tr><th>Class & Section</th><td>${classLabel}</td></tr>
+              <tr><th>Due Date</th><td>${fee.due_date.split('T')[0]}</td></tr>
+              <tr><th>Paid Date</th><td>${paidDate}</td></tr>
+              <tr><th>Amount Paid</th><td><strong>₹${fee.amount}</strong></td></tr>
+            </table>
+            <div class="footer">
+              <span>Generated on: ${new Date().toLocaleDateString()}</span>
+              <span>Authorized Signatory</span>
+            </div>
+          </div>
+          <script>window.onload = function() { window.print(); };</script>
+        </body>
+      </html>
+    `);
+    receiptWin.document.close();
   };
 
   if (loading) return <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>लोड हो रहा है...</div>;
@@ -69,7 +119,7 @@ const StudentDashboard = () => {
       </div>
 
       {/* Attendance & Fees Tables */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '24px', marginBottom: '28px' }}>
         <div>
           <h3>Recent Attendance</h3>
           {attendance.recentRecords.length === 0 ? <p>कोई रिकॉर्ड नहीं</p> : (
@@ -103,6 +153,7 @@ const StudentDashboard = () => {
                   <th style={{ padding: '8px', border: '1px solid #ddd' }}>Amount</th>
                   <th style={{ padding: '8px', border: '1px solid #ddd' }}>Due Date</th>
                   <th style={{ padding: '8px', border: '1px solid #ddd' }}>Status</th>
+                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Receipt</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,6 +163,18 @@ const StudentDashboard = () => {
                     <td style={{ padding: '8px', border: '1px solid #ddd' }}>{fee.due_date.split('T')[0]}</td>
                     <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold', color: fee.status === 'Paid' ? 'green' : '#d97706' }}>
                       {fee.status}
+                    </td>
+                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>
+                      {fee.status === 'Paid' ? (
+                        <button
+                          onClick={() => handlePrintReceipt(fee)}
+                          style={{ padding: '4px 10px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          Print Receipt
+                        </button>
+                      ) : (
+                        <span style={{ color: '#9ca3af', fontSize: '12px' }}>Pending</span>
+                      )}
                     </td>
                   </tr>
                 ))}

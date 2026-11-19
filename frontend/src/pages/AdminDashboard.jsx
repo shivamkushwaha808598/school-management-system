@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import API from '../api/axios';
 
 const AdminDashboard = () => {
@@ -7,6 +7,7 @@ const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [fees, setFees] = useState([]);
+  const [enquiries, setEnquiries] = useState([]);
   const [msg, setMsg] = useState({ type: '', text: '' });
 
   // Forms State
@@ -17,16 +18,18 @@ const AdminDashboard = () => {
 
   const loadAllData = async () => {
     try {
-      const [tRes, sRes, cRes, fRes] = await Promise.all([
+      const [tRes, sRes, cRes, fRes, eRes] = await Promise.all([
         API.get('/admin/users?role=teacher'),
         API.get('/admin/users?role=student'),
         API.get('/admin/classes'),
         API.get('/admin/fees'),
+        API.get('/admin/enquiries'),
       ]);
       setTeachers(tRes.data);
       setStudents(sRes.data);
       setClasses(cRes.data);
       setFees(fRes.data);
+      setEnquiries(eRes.data);
     } catch (err) {
       setMsg({ type: 'error', text: err.response?.data?.message || 'डेटा लोड करने में समस्या आई।' });
     }
@@ -111,7 +114,7 @@ const AdminDashboard = () => {
 
   const inputStyle = { width: '100%', padding: '8px', marginBottom: '10px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #cbd5e1' };
   const btnStyle = { padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' };
-  const cardStyle = { border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', background: '#fff' };
+  const cardStyle = { border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', background: '#fff', marginBottom: '24px' };
 
   return (
     <div style={{ maxWidth: '1150px', margin: '0 auto', padding: '24px', fontFamily: 'sans-serif' }}>
@@ -134,31 +137,34 @@ const AdminDashboard = () => {
       )}
 
       {/* Top Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-        <div style={{ ...cardStyle, background: '#eff6ff' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+        <div style={{ ...cardStyle, marginBottom: 0, background: '#eff6ff' }}>
           <h4 style={{ margin: '0 0 6px', color: '#1e40af' }}>Total Students</h4>
           <p style={{ fontSize: '26px', fontWeight: 'bold', margin: 0 }}>{students.length}</p>
         </div>
-        <div style={{ ...cardStyle, background: '#f0fdf4' }}>
+        <div style={{ ...cardStyle, marginBottom: 0, background: '#f0fdf4' }}>
           <h4 style={{ margin: '0 0 6px', color: '#166534' }}>Total Teachers</h4>
           <p style={{ fontSize: '26px', fontWeight: 'bold', margin: 0 }}>{teachers.length}</p>
         </div>
-        <div style={{ ...cardStyle, background: '#faf5ff' }}>
+        <div style={{ ...cardStyle, marginBottom: 0, background: '#faf5ff' }}>
           <h4 style={{ margin: '0 0 6px', color: '#6b21a8' }}>Total Classes</h4>
           <p style={{ fontSize: '26px', fontWeight: 'bold', margin: 0 }}>{classes.length}</p>
         </div>
-        <div style={{ ...cardStyle, background: '#fefce8' }}>
+        <div style={{ ...cardStyle, marginBottom: 0, background: '#fefce8' }}>
           <h4 style={{ margin: '0 0 6px', color: '#854d0e' }}>Pending Fees</h4>
           <p style={{ fontSize: '26px', fontWeight: 'bold', margin: 0 }}>
             ₹{fees.filter(f => f.status === 'Pending').reduce((s, f) => s + Number(f.amount), 0)}
           </p>
         </div>
+        <div style={{ ...cardStyle, marginBottom: 0, background: '#fff1f2' }}>
+          <h4 style={{ margin: '0 0 6px', color: '#9f1239' }}>Admission Enquiries</h4>
+          <p style={{ fontSize: '26px', fontWeight: 'bold', margin: 0 }}>{enquiries.length}</p>
+        </div>
       </div>
 
       {/* 4 Action Forms Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        {/* Add User */}
-        <div style={cardStyle}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+        <div style={{ ...cardStyle, marginBottom: 0 }}>
           <h3 style={{ marginTop: 0 }}>Add Teacher / Student</h3>
           <form onSubmit={handleCreateUser}>
             <input style={inputStyle} placeholder="Full Name" required value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })} />
@@ -178,8 +184,7 @@ const AdminDashboard = () => {
           </form>
         </div>
 
-        {/* Create Class */}
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, marginBottom: 0 }}>
           <h3 style={{ marginTop: 0 }}>Create New Class</h3>
           <form onSubmit={handleCreateClass}>
             <input style={inputStyle} placeholder="Class Name (e.g. 12th)" required value={classForm.class_name} onChange={e => setClassForm({ ...classForm, class_name: e.target.value })} />
@@ -192,8 +197,7 @@ const AdminDashboard = () => {
           </form>
         </div>
 
-        {/* Assign Fee */}
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, marginBottom: 0 }}>
           <h3 style={{ marginTop: 0 }}>Assign Student Fee</h3>
           <form onSubmit={handleCreateFee}>
             <select style={inputStyle} required value={feeForm.student_id} onChange={e => setFeeForm({ ...feeForm, student_id: e.target.value })}>
@@ -206,8 +210,7 @@ const AdminDashboard = () => {
           </form>
         </div>
 
-        {/* Publish Notice */}
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, marginBottom: 0 }}>
           <h3 style={{ marginTop: 0 }}>Publish Notice</h3>
           <form onSubmit={handlePublishNotice}>
             <input style={inputStyle} placeholder="Notice Title" required value={noticeForm.title} onChange={e => setNoticeForm({ ...noticeForm, title: e.target.value })} />
@@ -220,6 +223,37 @@ const AdminDashboard = () => {
             <button style={btnStyle} type="submit">Publish Notice</button>
           </form>
         </div>
+      </div>
+
+      {/* Admission Enquiries Table */}
+      <div style={cardStyle}>
+        <h3 style={{ marginTop: 0, color: '#1e3a8a' }}>Online Admission Enquiries (From Website)</h3>
+        {enquiries.length === 0 ? <p>अभी कोई नया एडमिशन आवेदन नहीं आया है।</p> : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#eff6ff', textAlign: 'left' }}>
+                <th style={{ padding: '10px', border: '1px solid #cbd5e1' }}>Student Name</th>
+                <th style={{ padding: '10px', border: '1px solid #cbd5e1' }}>Parent Name</th>
+                <th style={{ padding: '10px', border: '1px solid #cbd5e1' }}>Class</th>
+                <th style={{ padding: '10px', border: '1px solid #cbd5e1' }}>Mobile</th>
+                <th style={{ padding: '10px', border: '1px solid #cbd5e1' }}>Message</th>
+                <th style={{ padding: '10px', border: '1px solid #cbd5e1' }}>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {enquiries.map(eq => (
+                <tr key={eq.id}>
+                  <td style={{ padding: '10px', border: '1px solid #cbd5e1', fontWeight: 'bold' }}>{eq.student_name}</td>
+                  <td style={{ padding: '10px', border: '1px solid #cbd5e1' }}>{eq.parent_name}</td>
+                  <td style={{ padding: '10px', border: '1px solid #cbd5e1' }}>{eq.applying_class}</td>
+                  <td style={{ padding: '10px', border: '1px solid #cbd5e1' }}><a href={`tel:${eq.phone}`}>{eq.phone}</a></td>
+                  <td style={{ padding: '10px', border: '1px solid #cbd5e1' }}>{eq.message || '-'}</td>
+                  <td style={{ padding: '10px', border: '1px solid #cbd5e1' }}>{new Date(eq.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Fee Management Table */}
