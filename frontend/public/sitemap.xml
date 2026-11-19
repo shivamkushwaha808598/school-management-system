@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://APNA-VERCEL-LINK.vercel.app/</loc>
+    <loc>https://school-management-system-7it17vjyy-shivamkushwaha808598.vercel.app/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://APNA-VERCEL-LINK.vercel.app/login</loc>
+    <loc>https://school-management-system-7it17vjyy-shivamkushwaha808598.vercel.app/login</loc>
     <priority>0.8</priority>
   </url>
 </urlset>
