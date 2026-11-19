@@ -1,16 +1,16 @@
-const mysql = require('mysql2/promise');
+﻿const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const DB_CONFIG = {
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || ''
+  password: process.env.DB_PASSWORD || '',
+  ...(process.env.DB_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {})
 };
 
 const DB_NAME = process.env.DB_NAME || 'school_management_db';
 
-// Connection Pool (तेज़ और सुरक्षित क्वेरी के लिए)
 const pool = mysql.createPool({
   ...DB_CONFIG,
   database: DB_NAME,
@@ -18,30 +18,30 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   charset: 'utf8mb4',
-  dateStrings: true // DATE कॉलम 'YYYY-MM-DD' स्ट्रिंग में मिलेंगे
+  dateStrings: true
 });
 
-// डेटाबेस बनाने और कनेक्शन चेक करने का फंक्शन
 const connectDB = async () => {
-  let tempConnection;
-  try {
-    tempConnection = await mysql.createConnection(DB_CONFIG);
-    await tempConnection.query(
-      `CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
-    );
-  } catch (err) {
-    console.error('❌ डेटाबेस बनाने में त्रुटि:', err.message);
-    process.exit(1);
-  } finally {
-    if (tempConnection) await tempConnection.end();
+  if (process.env.DB_SSL !== 'true') {
+    let tempConnection;
+    try {
+      tempConnection = await mysql.createConnection(DB_CONFIG);
+      await tempConnection.query(
+        `CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+      );
+    } catch (err) {
+      console.error('Database create warning:', err.message);
+    } finally {
+      if (tempConnection) await tempConnection.end();
+    }
   }
 
   try {
     const connection = await pool.getConnection();
-    console.log(`✅ MySQL डेटाबेस '${DB_NAME}' से सफलतापूर्वक जुड़ गया!`);
+    console.log(`MySQL database '${DB_NAME}' connected successfully!`);
     connection.release();
   } catch (err) {
-    console.error('❌ MySQL कनेक्शन में त्रुटि:', err.message);
+    console.error('Database connection error:', err.message);
     process.exit(1);
   }
 };
