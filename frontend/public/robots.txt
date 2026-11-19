@@ -1,0 +1,3 @@
+﻿User-agent: *
+Allow: /
+Sitemap: https://APNA-VERCEL-LINK.vercel.app/sitemap.xml

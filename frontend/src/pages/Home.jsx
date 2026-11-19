@@ -26,8 +26,11 @@ const Home = () => {
 
   return (
     <div style={{ fontFamily: 'sans-serif', color: '#1e293b', background: '#f8fafc', minHeight: '100vh' }}>
-      <nav style={{ background: '#1e3a8a', color: '#fff', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0, fontSize: '22px' }}>Sunrise Public School</h2>
+      <nav style={{ background: '#1e3a8a', color: '#fff', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <span style={{ fontSize: '20px', fontWeight: 'bold', display: 'block' }}>Education Valley Inter College</span>
+          <span style={{ fontSize: '13px', color: '#bfdbfe' }}>Nauta, Jhansi, Uttar Pradesh</span>
+        </div>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <a href="#about" style={{ color: '#e2e8f0', textDecoration: 'none' }}>About</a>
           <a href="#admission" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Admissions</a>
@@ -38,9 +41,9 @@ const Home = () => {
       </nav>
 
       <header style={{ background: 'linear-gradient(135deg, #1d4ed8, #1e40af)', color: '#fff', padding: '64px 24px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '36px', margin: '0 0 12px' }}>Shaping Future Leaders Through Quality Education</h1>
-        <p style={{ fontSize: '18px', maxWidth: '700px', margin: '0 auto 24px', color: '#dbeafe' }}>
-          Nursery to Class 12th | Smart Classrooms | Experienced Faculty | Digital Parent & Student Portal
+        <h1 style={{ fontSize: '34px', margin: '0 0 12px' }}>Education Valley Inter College, Nauta, Jhansi</h1>
+        <p style={{ fontSize: '18px', maxWidth: '750px', margin: '0 auto 24px', color: '#dbeafe' }}>
+          Nauta, Jhansi, Uttar Pradesh | Nursery to Class 12th | Smart Classrooms | Digital Student & Parent Portal
         </p>
         <a href="#admission" style={{ background: '#fff', color: '#1e3a8a', padding: '12px 28px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
           Apply for Admission 2026-27
@@ -48,13 +51,13 @@ const Home = () => {
       </header>
 
       <section id="about" style={{ maxWidth: '1050px', margin: '48px auto', padding: '0 24px' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '28px' }}>Why Choose Our School?</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '28px' }}>Why Choose Education Valley Inter College?</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
           {[
-            { title: 'Smart Digital Campus', desc: 'Real-time attendance, online fee tracking, and instant school notices.' },
-            { title: 'Experienced Teachers', desc: 'Dedicated faculty focused on conceptual clarity and individual attention.' },
-            { title: 'Science & Computer Labs', desc: 'Modern laboratories for practical learning and coding skills.' },
-            { title: 'Safe Transport & Sports', desc: 'GPS-enabled school buses and dedicated playground facilities.' },
+            { title: 'Smart Digital Campus', desc: 'Real-time attendance, online fee receipts, and instant school notices.' },
+            { title: 'Experienced Teachers', desc: 'Dedicated faculty in Nauta, Jhansi focused on conceptual clarity and board exam excellence.' },
+            { title: 'Science & Computer Labs', desc: 'Modern laboratories for practical learning and digital literacy.' },
+            { title: 'Safe Campus & Discipline', desc: 'Supportive learning environment for students across Nauta and nearby Jhansi villages.' },
           ].map((item, i) => (
             <div key={i} style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               <h3 style={{ margin: '0 0 8px', color: '#1e3a8a' }}>{item.title}</h3>
@@ -75,7 +78,7 @@ const Home = () => {
           <input style={inputStyle} placeholder="Student Full Name *" required value={form.student_name} onChange={(e) => setForm({ ...form, student_name: e.target.value })} />
           <input style={inputStyle} placeholder="Parent / Guardian Name *" required value={form.parent_name} onChange={(e) => setForm({ ...form, parent_name: e.target.value })} />
           <input style={inputStyle} type="tel" placeholder="Mobile Number *" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          <input style={inputStyle} placeholder="Applying for Class (e.g. 5th, 10th) *" required value={form.applying_class} onChange={(e) => setForm({ ...form, applying_class: e.target.value })} />
+          <input style={inputStyle} placeholder="Applying for Class (e.g. 5th, 10th, 12th) *" required value={form.applying_class} onChange={(e) => setForm({ ...form, applying_class: e.target.value })} />
           <textarea style={{ ...inputStyle, minHeight: '72px' }} placeholder="Any Message (Optional)" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
           <button type="submit" disabled={submitting} style={{ width: '100%', padding: '12px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
             {submitting ? 'Submitting...' : 'Submit Admission Enquiry'}
@@ -84,7 +87,7 @@ const Home = () => {
       </section>
 
       <footer style={{ background: '#0f172a', color: '#94a3b8', textAlign: 'center', padding: '20px', marginTop: '48px' }}>
-        © 2026 Sunrise Public School | Bhopal, Madhya Pradesh
+        © 2026 Education Valley Inter College | Nauta, Jhansi, Uttar Pradesh
       </footer>
     </div>
   );
