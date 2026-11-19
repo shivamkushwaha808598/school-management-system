@@ -1,7 +1,6 @@
-const { pool } = require('../config/db');
+﻿const { pool } = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-// FK पहले से मौजूद न हो तभी जोड़ें (बार-बार सर्वर चलाने पर error नहीं आएगा)
 const addForeignKeyIfMissing = async (table, constraintName, sql) => {
   const [rows] = await pool.query(
     `SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS
@@ -18,7 +17,6 @@ const addForeignKeyIfMissing = async (table, constraintName, sql) => {
 
 const initializeDatabase = async () => {
   try {
-    // 1. Users Table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,7 +32,6 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
-    // 2. Classes Table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS classes (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,7 +45,6 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
-    // users.class_id -> classes.id (दोनों टेबल बनने के बाद ही जोड़ा जा सकता है)
     await addForeignKeyIfMissing(
       'users',
       'fk_users_class',
@@ -57,7 +53,6 @@ const initializeDatabase = async () => {
          FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL`
     );
 
-    // 3. Attendance Table (एक छात्र की एक तारीख में सिर्फ एक अटेंडेंस)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS attendance (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -77,7 +72,6 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
-    // 4. Fees Table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS fees (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -94,7 +88,6 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
-    // 5. Notices Table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS notices (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -109,9 +102,20 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
-    // डिफ़ॉल्ट Admin चेक और क्रिएट करें
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@school.com#';
-    const adminPass = process.env.ADMIN_PASSWORD || 'Admin@2026#';
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS enquiries (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_name VARCHAR(100) NOT NULL,
+        parent_name VARCHAR(100) NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        applying_class VARCHAR(50) NOT NULL,
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@school.com';
+    const adminPass = process.env.ADMIN_PASSWORD || 'Admin@123';
     const [rows] = await pool.query('SELECT id FROM users WHERE email = ?', [adminEmail]);
 
     if (rows.length === 0) {
@@ -120,13 +124,12 @@ const initializeDatabase = async () => {
         'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
         ['Principal Admin', adminEmail, hashedPassword, 'admin']
       );
-      // सुरक्षा के लिए password लॉग में नहीं दिखाया गया
-      console.log(`🔑 डिफ़ॉल्ट Admin तैयार: ${adminEmail} (पासवर्ड .env के ADMIN_PASSWORD में है)`);
+      console.log(`Default Admin created: ${adminEmail}`);
     }
 
-    console.log('📦 सभी MySQL टेबल्स तैयार हैं!');
+    console.log('All MySQL tables ready!');
   } catch (err) {
-    console.error('❌ टेबल्स बनाने में त्रुटि:', err.message);
+    console.error('Database init error:', err.message);
     process.exit(1);
   }
 };
