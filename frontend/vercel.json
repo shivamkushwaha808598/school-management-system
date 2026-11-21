@@ -1,5 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
+{"rewrites":[{"source":"/((?!google.*\\.html|sitemap\\.xml|robots\\.txt|assets/).*)","destination":"/index.html"}]}
