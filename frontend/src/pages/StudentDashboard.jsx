@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { printFeeReceipt } from '../utils/printReceipt';
+import { useEffect, useState } from 'react';
 import API from '../api/axios';
 
 const StudentDashboard = () => {
@@ -167,7 +168,7 @@ const StudentDashboard = () => {
                     <td style={{ padding: '8px', border: '1px solid #ddd' }}>
                       {fee.status === 'Paid' ? (
                         <button
-                          onClick={() => handlePrintReceipt(fee)}
+                          onClick={() => printFeeReceipt(fee, profile?.name, profile?.class_name ? ${profile.class_name} -  : '')}
                           style={{ padding: '4px 10px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                         >
                           Print Receipt
@@ -200,3 +201,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+

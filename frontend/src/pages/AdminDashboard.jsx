@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { printFeeReceipt } from '../utils/printReceipt';
+import { useEffect, useState } from 'react';
 import API from '../api/axios';
 
 const AdminDashboard = () => {
@@ -283,7 +284,7 @@ const AdminDashboard = () => {
                         Mark Paid
                       </button>
                     ) : (
-                      <span style={{ color: '#64748b', fontSize: '13px' }}>Paid ({f.payment_id})</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: '#166534', fontSize: '12px', fontWeight: 'bold' }}>Paid</span><button onClick={() => printFeeReceipt(f, f.student_name)} style={{ padding: '4px 10px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>Print Receipt</button></div>
                     )}
                   </td>
                 </tr>
@@ -297,3 +298,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
